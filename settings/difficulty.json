@@ -1,0 +1,7 @@
+[
+  { "key": "easy", "label": "かんたん" },
+  { "key": "normal", "label": "ふつう" },
+  { "key": "hard", "label": "むずかしい" },
+  { "key": "oni", "label": "おに" },
+  { "key": "edit", "label": "おに(裏)" }
+]

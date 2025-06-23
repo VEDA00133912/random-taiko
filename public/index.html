@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太鼓の達人 ランダム選曲サイト</title>
+  <meta name="description" content="太鼓の達人のランダム選曲サイトです🥁">
+  <meta name="keywords" content="太鼓の達人,ランダム選曲,音ゲー">
+  <meta name="author" content="りょう">
+  <meta name="theme-color" content="#f34728">
+  <link rel="icon" href="/static/assets/img/favicon.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/static/assets/img/favicon.png" type="image/png" />
+  <meta property="og:title" content="太鼓の達人 ランダム選曲🥁">
+  <meta property="og:description" content="太鼓の達人のランダム選曲サイトです🥁">
+  <meta property="og:image" content="https://veda00133912.github.io/TitleMaker/static/assets/img/img.png">
+  <meta property="og:url" content="https://veda00133912.github.io/TitleMaker/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="太鼓の達人 ランダム選曲🥁">
+  <meta name="twitter:description" content="太鼓の達人のランダム選曲サイトです🥁">
+  <meta name="twitter:image" content="https://veda00133912.github.io/TitleMaker/static/assets/img/img.png">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div id="loading-screen">
+    <img src="static/assets/img/favicon.png" class="loading-icon left" alt="icon">
+    <div class="loading-text">
+      LOADING
+      <span class="dot">.</span>
+      <span class="dot">.</span>
+      <span class="dot">.</span>
+    </div>
+    <img src="static/assets/img/favicon.png" class="loading-icon right" alt="icon">
+  </div>
+  <h1>🥁太鼓の達人ランダム選曲🥁</h1>
+
+  <div class="select-panel">
+    <div class="select-row">
+      <span class="label">ジャンルを指定</span>
+      <div class="selector" data-name="genre">
+        <button class="arrow left">◀</button>
+        <span class="value">全ジャンル</span>
+        <button class="arrow right">▶</button>
+      </div>
+    </div>
+    <div class="select-row">
+      <span class="label">むずかしさを指定</span>
+      <div class="selector" data-name="difficulty">
+        <button class="arrow left">◀</button>
+        <span class="value">おに</span>
+        <button class="arrow right">▶</button>
+      </div>
+    </div>
+    <div class="select-row">
+      <span class="label">★の数を指定</span>
+      <div class="selector" data-name="stars">
+        <button class="arrow left">◀</button>
+        <span class="value">1</span>
+        <button class="arrow right">▶</button>
+      </div>
+    </div>
+    <div class="select-row">
+      <span class="label">選曲数を指定</span>
+      <div class="selector" data-name="count">
+        <button class="arrow left">◀</button>
+        <span class="value">1</span>
+        <button class="arrow right">▶</button>
+      </div>
+    </div>
+
+    <button class="start-button" id="submitButton">!!!ランダム選曲開始!!!</button>
+  </div>
+
+  <div class="result" id="result"></div>
+  <script src="/static/js/script.js"></script>
+</body>
+</html>

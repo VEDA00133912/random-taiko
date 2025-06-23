@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>曲データアップローダー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/static/assets/img/favicon.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/static/assets/img/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="/static/css/upload.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+  <h1>曲データアップローダー</h1>
+
+  <h2>JSONファイルをアップロード</h2>
+  <form id="uploadForm">
+    <input type="file" name="jsonFile" accept=".json" required><br>
+    <input type="password" name="adminPass" placeholder="パスワード" required><br>
+    <button type="submit">アップロードして上書き</button>
+  </form>
+
+  <h2>曲情報を追加</h2>
+  <form id="addForm">
+    <input type="text" id="title" placeholder="曲名" required><br>
+
+    <label for="genre">ジャンル：</label>
+    <select id="genre" required>
+      <option value="">選択してください</option>
+      <option value="pops">ポップス</option>
+      <option value="anime">アニメ</option>
+      <option value="vocaloid">ボーカロイド™曲</option>
+      <option value="gamemusic">ゲームミュージック</option>
+      <option value="namco">ナムコオリジナル</option>
+      <option value="classic">クラシック</option>
+      <option value="variety">バラエティ</option>
+      <option value="kids">キッズ</option>
+    </select><br>
+
+    <label>各難易度のレベル（省略可）:</label><br>
+    <input type="number" id="easy" placeholder="かんたん"><br>
+    <input type="number" id="normal" placeholder="ふつう"><br>
+    <input type="number" id="hard" placeholder="むずかしい"><br>
+    <input type="number" id="oni" placeholder="おに"><br>
+    <input type="number" id="edit" placeholder="おに裏"><br>
+
+    <input type="password" id="addPass" placeholder="パスワード" required><br>
+
+    <button type="submit">追加</button>
+  </form>
+
+    <div id="result"></div>
+  <script src="/static/js/upload.js"></script>
+  </div>
+</body>
+</html>

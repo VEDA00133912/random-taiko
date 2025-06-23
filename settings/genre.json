@@ -1,0 +1,10 @@
+[
+  { "key": "pops", "label": "ポップス", "color": "#60cad9" },
+  { "key": "anime", "label": "アニメ", "color": "#ffa2da" },
+  { "key": "kids", "label": "キッズ", "color": "#ffca29" },
+  { "key": "vocaloid", "label": "ボーカロイド™曲", "color": "#cdcfdf" },
+  { "key": "variety", "label": "バラエティ", "color": "#8fd41f" },
+  { "key": "gamemusic", "label": "ゲームミュージック", "color": "#d6a1ee" },
+  { "key": "classic", "label": "クラシック", "color": "#d2ca29" },
+  { "key": "namco", "label": "ナムコオリジナル", "color": "#ff874a" }
+]
