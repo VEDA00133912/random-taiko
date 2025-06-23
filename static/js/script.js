@@ -9,6 +9,13 @@ Promise.all([fontReady, delay]).then(() => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    document.body.classList.add("ios");
+  }
+});
+
 const options = {
   genre: [],
   difficulty: [],
