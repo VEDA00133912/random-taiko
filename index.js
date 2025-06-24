@@ -95,10 +95,24 @@ app.get('/api/random-taiko', async (req, res, next) => {
 
     const filter = {};
     if (genre) filter.genre = genre;
-    if (difficulty) filter[`difficulties.${difficulty}`] = { $ne: null };
 
-    if (stars && difficulty) {
-      filter[`difficulties.${difficulty}`] = parseInt(stars);
+    if (difficulty === 'oni-edit') {
+      filter.$or = [
+        { 'difficulties.oni': { $ne: null } },
+        { 'difficulties.edit': { $ne: null } }
+      ];
+      if (stars) {
+        filter.$or = [
+          { 'difficulties.oni': parseInt(stars) },
+          { 'difficulties.edit': parseInt(stars) }
+        ];
+      }
+    } else if (difficulty) {
+      if (stars) {
+        filter[`difficulties.${difficulty}`] = parseInt(stars);
+      } else {
+        filter[`difficulties.${difficulty}`] = { $ne: null };
+      }
     }
 
     const matchedSongs = await TaikoSong.find(filter);

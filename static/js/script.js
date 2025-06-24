@@ -41,7 +41,7 @@ Promise.all([
   options.genre = [{ label: '全ジャンル', value: '' }]
     .concat(genreList.map(g => ({ label: g.label, value: g.key })));
 
-  options.difficulty = difficultyList.map(d => ({ label: d.label, value: d.key }));
+  options.difficulty = difficultyData.map(d => ({ label: d.label, value: d.key }));
 
   initializeSelectors();
 });
@@ -91,6 +91,8 @@ document.getElementById('submitButton').addEventListener('click', async () => {
   });
 
   const selectedDifficulty = selected.difficulty;
+  const selectedStars = parseInt(selected.stars);
+
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(selected)) {
     if (value) params.append(key, value);
@@ -114,7 +116,21 @@ document.getElementById('submitButton').addEventListener('click', async () => {
       const genreColor = genre.color;
       const genreLight = lightenColor(genreColor, 0.2);
       const genreDark = darkenColor(genreColor, 0.2);
-      const level = song.difficulties[selectedDifficulty] ?? '-';
+
+      let difficultyUsed = selectedDifficulty;
+      let level = '-';
+
+      if (selectedDifficulty === 'oni-edit') {
+        if (song.difficulties.oni === selectedStars) {
+          difficultyUsed = 'oni';
+          level = song.difficulties.oni;
+        } else if (song.difficulties.edit === selectedStars) {
+          difficultyUsed = 'edit';
+          level = song.difficulties.edit;
+        }
+      } else {
+        level = song.difficulties[selectedDifficulty] ?? '-';
+      }
 
       const div = document.createElement('div');
       div.className = 'song-card';
@@ -124,7 +140,7 @@ document.getElementById('submitButton').addEventListener('click', async () => {
 
       div.innerHTML = `
         <div class="song-title-text">${escapeXml(song.title)}</div>
-        <div class="song-difficulty-badge" style="background-image: url('/static/assets/img/difficulty-${selectedDifficulty}.png');">
+        <div class="song-difficulty-badge" style="background-image: url('/static/assets/img/difficulty-${difficultyUsed}.png');">
           <span>★${level}</span>
         </div>
       `;
