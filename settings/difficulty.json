@@ -3,5 +3,6 @@
   { "key": "normal", "label": "ふつう" },
   { "key": "hard", "label": "むずかしい" },
   { "key": "oni", "label": "おに" },
-  { "key": "edit", "label": "おに(裏)" }
+  { "key": "edit", "label": "おに(裏)" },
+  { "key": "oni-edit", "label": "おに+おに(裏)"}
 ]
