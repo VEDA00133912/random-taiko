@@ -3,57 +3,56 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const TaikoSong = require('./settings/TaikoSong');
 
 dotenv.config();
 const app = express();
-app.use(express.json());
 const PORT = 3000;
+
+app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDBに接続しました'))
-  .catch(err => console.error('❌ MongoDBへの接続エラーです:', err));
+  .catch(err => console.error('❌ MongoDB接続エラー:', err));
 
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/genre-config', express.static('settings'));
-
-app.get('/:page.html', (req, res) => {
-  res.redirect(301, `/${req.params.page}`);
-});
-
-app.get('/:page', (req, res, next) => {
-  if (req.params.page.includes('.')) return next(); 
-  const filePath = path.join(__dirname, 'public', `${req.params.page}.html`);
-  res.sendFile(filePath, err => {
-    if (err) next();
-  });
-});
-
 app.use(express.static('public'));
+
+app.get('/:page.html', (req, res) => res.redirect(301, `/${req.params.page}`));
+app.get('/:page', (req, res, next) => {
+  if (req.params.page.includes('.')) return next();
+  res.sendFile(path.join(__dirname, 'public', `${req.params.page}.html`), err => err && next());
+});
+
+async function validateAdminPass(inputPass) {
+  const storedHash = process.env.ADMIN_PASS;
+  if (!inputPass || !storedHash) return false;
+  try {
+    return await bcrypt.compare(inputPass, storedHash);
+  } catch {
+    return false;
+  }
+}
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// API
 app.post('/api/upload', upload.single('jsonFile'), async (req, res, next) => {
   try {
-    const providedPass = req.body.adminPass;
-    if (!providedPass || providedPass !== process.env.ADMIN_PASS) {
+    if (!await validateAdminPass(req.body.adminPass)) {
       return res.status(401).json({ error: '不正なパスワードです' });
     }
 
-    if (!req.file) return res.status(400).json({ error: 'ファイルが添付されていません' });
+    if (!req.file) return res.status(400).json({ error: 'ファイルがありません' });
 
-    const buffer = req.file.buffer;
-    const json = JSON.parse(buffer.toString());
-
-    if (!Array.isArray(json)) {
-      return res.status(400).json({ error: 'JSONは配列である必要があります' });
-    }
+    const data = JSON.parse(req.file.buffer.toString());
+    if (!Array.isArray(data)) return res.status(400).json({ error: 'JSONは配列形式である必要があります' });
 
     await TaikoSong.deleteMany({});
-    await TaikoSong.insertMany(json);
+    await TaikoSong.insertMany(data);
 
-    res.json({ status: 'アップロード完了', count: json.length });
+    res.json({ status: 'アップロード完了', count: data.length });
   } catch (err) {
     next(err);
   }
@@ -63,23 +62,16 @@ app.post('/api/add', async (req, res, next) => {
   try {
     const { title, genre, difficulties, adminPass } = req.body;
 
-    if (!adminPass || adminPass !== process.env.ADMIN_PASS) {
+    if (!await validateAdminPass(adminPass)) {
       return res.status(401).json({ error: '不正なパスワードです' });
     }
 
-    if (
-      typeof title !== 'string' || title.trim() === '' ||
-      typeof genre !== 'string' || genre.trim() === '' ||
-      typeof difficulties !== 'object' || difficulties === null
-    ) {
+    if (!title || !genre || typeof difficulties !== 'object') {
       return res.status(400).json({ error: 'title, genre, difficulties は必須です' });
     }
 
-    const existing = await TaikoSong.findOne({ title });
-
-    if (existing) {
-      return res.status(409).json({ status: '同じタイトルの曲が既に存在します', title });
-    }
+    const exists = await TaikoSong.findOne({ title });
+    if (exists) return res.status(409).json({ error: '同名の曲が存在します', title });
 
     await TaikoSong.create({ title, genre, difficulties });
     res.json({ status: '新しい曲を追加しました', title });
@@ -88,57 +80,62 @@ app.post('/api/add', async (req, res, next) => {
   }
 });
 
+app.post('/api/delete', async (req, res) => {
+  const { title, adminPass } = req.body;
+
+  if (!await validateAdminPass(adminPass)) {
+    return res.status(401).json({ error: '不正なパスワードです' });
+  }
+
+  try {
+    const deleted = await TaikoSong.findOneAndDelete({ title });
+    if (!deleted) return res.status(404).json({ error: '曲が見つかりません' });
+    res.json({ status: '削除成功', title: deleted.title });
+  } catch (err) {
+    res.status(500).json({ error: '削除中にエラーが発生しました', detail: err.message });
+  }
+});
+
 app.get('/api/random-taiko', async (req, res, next) => {
   try {
-    const { count = 1, genre, difficulty, stars } = req.query;
-    const num = Math.min(parseInt(count), 100);
+    const { count = 1, genre, difficulty, stars, excludeSouuchi } = req.query;
+    const num = parseInt(count);
+    if (isNaN(num) || num < 1 || num > 10) {
+      return res.status(400).json({ error: 'countは1〜10の整数で指定してください' });
+    }
 
     const filter = {};
     if (genre) filter.genre = genre;
+    const starNum = stars ? parseInt(stars) : null;
 
     if (difficulty === 'oni-edit') {
       filter.$or = [
-        { 'difficulties.oni': { $ne: null } },
-        { 'difficulties.edit': { $ne: null } }
+        { 'difficulties.oni': starNum ?? { $ne: null } },
+        { 'difficulties.edit': starNum ?? { $ne: null } }
       ];
-      if (stars) {
-        filter.$or = [
-          { 'difficulties.oni': parseInt(stars) },
-          { 'difficulties.edit': parseInt(stars) }
-        ];
-      }
     } else if (difficulty) {
-      if (stars) {
-        filter[`difficulties.${difficulty}`] = parseInt(stars);
-      } else {
-        filter[`difficulties.${difficulty}`] = { $ne: null };
+      if (starNum !== null && isNaN(starNum)) {
+        return res.status(400).json({ error: '★の数は整数で指定してください' });
       }
+      filter[`difficulties.${difficulty}`] = starNum ?? { $ne: null };
     }
 
-    const matchedSongs = await TaikoSong.find(filter);
-    if (matchedSongs.length === 0) {
-      return res.status(404).json({ error: '該当する曲が見つかりませんでした' });
+    if (excludeSouuchi === 'true') {
+      filter.title = { $not: /双打/ };
     }
 
-    const uniqueSongsMap = new Map();
-    for (const song of matchedSongs) {
-      if (!uniqueSongsMap.has(song.title)) {
-        uniqueSongsMap.set(song.title, song);
-      }
+    const results = await TaikoSong.find(filter);
+    if (!results.length) {
+      return res.status(404).json({ error: '該当曲が見つかりませんでした' });
     }
 
-    const uniqueSongs = Array.from(uniqueSongsMap.values());
-
-    if (uniqueSongs.length < num) {
-      return res.status(400).json({
-        error: `リクエスト数(${num})に対して曲数が不足しています`
-      });
+    const unique = Array.from(new Map(results.map(s => [s.title, s])).values());
+    if (unique.length < num) {
+      return res.status(400).json({ error: `要求数(${num})に対して${unique.length}件のみ` });
     }
 
-    const shuffled = uniqueSongs.sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, num);
-
-    res.json(selected);
+    const shuffled = unique.sort(() => 0.5 - Math.random());
+    res.json(shuffled.slice(0, num));
   } catch (err) {
     next(err);
   }
@@ -153,19 +150,16 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('❌️ エラー発生:', err);
-
+  console.error('❌ エラー発生:', err);
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({ error: 'JSONの構文エラー' });
+    return res.status(400).json({ error: 'JSON構文エラー' });
   }
-
   if (err.name === 'MulterError') {
-    return res.status(400).json({ error: 'ファイルアップロードエラー', detail: err.message });
+    return res.status(400).json({ error: 'アップロードエラー', detail: err.message });
   }
-
   res.status(500).json({ error: 'サーバー内部エラー', detail: err.message });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 サーバー起動 http://localhost:${PORT}`);
+  console.log(`🚀 サーバー起動: http://localhost:${PORT}`);
 });

@@ -1,7 +1,7 @@
-const fontReady = document.fonts.ready;
-const delay = new Promise(resolve => setTimeout(resolve, 2000));
-
-Promise.all([fontReady, delay]).then(() => {
+Promise.all([
+  document.fonts.ready,
+  new Promise(resolve => setTimeout(resolve, 2000))
+]).then(() => {
   const loading = document.getElementById('loading-screen');
   if (loading) {
     loading.classList.add('hide');
@@ -9,7 +9,7 @@ Promise.all([fontReady, delay]).then(() => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
     document.body.classList.add("ios");
@@ -20,29 +20,29 @@ const options = {
   genre: [],
   difficulty: [],
   count: Array.from({ length: 10 }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` })),
-  stars: Array.from({ length: 10 }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` }))
+  stars: []
 };
 
 const selectorState = {};
-let genreList = [];
-let difficultyList = [];
-let genreMap = {};
-let difficultyMap = {};
+let genreList = [], difficultyList = [];
+let genreMap = {}, difficultyMap = {};
+
+const fetchJSON = (url) => fetch(url).then(res => res.json());
 
 Promise.all([
-  fetch('/genre-config/genre.json').then(res => res.json()),
-  fetch('/genre-config/difficulty.json').then(res => res.json())
+  fetchJSON('/genre-config/genre.json'),
+  fetchJSON('/genre-config/difficulty.json')
 ]).then(([genreData, difficultyData]) => {
   genreList = genreData;
   difficultyList = difficultyData;
+
   genreMap = Object.fromEntries(genreList.map(g => [g.key, g]));
-  difficultyMap = Object.fromEntries(difficultyList.map(d => [d.key, d.label]));
+  difficultyMap = Object.fromEntries(difficultyList.map(d => [d.key, d]));
 
-  options.genre = [{ label: '全ジャンル', value: '' }]
-    .concat(genreList.map(g => ({ label: g.label, value: g.key })));
+  options.genre = [{ label: '全ジャンル', value: '' }, ...genreList.map(g => ({ label: g.label, value: g.key }))];
+  options.difficulty = difficultyList.map(d => ({ label: d.label, value: d.key }));
 
-  options.difficulty = difficultyData.map(d => ({ label: d.label, value: d.key }));
-
+  updateStarsOptions('oni-edit');
   initializeSelectors();
 });
 
@@ -50,27 +50,54 @@ function initializeSelectors() {
   document.querySelectorAll('.selector').forEach(selector => {
     const name = selector.dataset.name;
     const valueElem = selector.querySelector('.value');
-    let index = 0;
+    let index = getInitialIndex(name);
 
     const updateDisplay = () => {
       valueElem.textContent = options[name][index].label;
       selectorState[name] = index;
+      if (name === 'difficulty') {
+        updateStarsOptions(options.difficulty[index].value);
+      }
     };
 
-    selector.querySelector('.left').addEventListener('click', (e) => {
+    selector.querySelector('.left').onclick = (e) => {
       index = (index - 1 + options[name].length) % options[name].length;
       updateDisplay();
       buttonEffect(e.currentTarget);
-    });
+    };
 
-    selector.querySelector('.right').addEventListener('click', (e) => {
+    selector.querySelector('.right').onclick = (e) => {
       index = (index + 1) % options[name].length;
       updateDisplay();
       buttonEffect(e.currentTarget);
-    });
+    };
 
     updateDisplay();
   });
+}
+
+function updateStarsOptions(difficultyValue) {
+  const difficulty = difficultyMap[difficultyValue];
+  const maxStars = difficulty?.maxStars || 10;
+
+  options.stars = [{ label: 'ランダム', value: '' }].concat(
+    Array.from({ length: maxStars }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` }))
+  );
+
+  const starsSelector = document.querySelector('.selector[data-name="stars"]');
+  if (!starsSelector) return;
+
+  const valueElem = starsSelector.querySelector('.value');
+  let index = Math.min(selectorState.stars || 0, options.stars.length - 1);
+
+  valueElem.textContent = options.stars[index].label;
+  selectorState.stars = index;
+}
+
+function getInitialIndex(name) {
+  if (name === 'difficulty') return options.difficulty.findIndex(d => d.value === 'oni-edit');
+  if (name === 'stars') return 10;
+  return 0;
 }
 
 function buttonEffect(button) {
@@ -82,79 +109,87 @@ document.getElementById('submitButton').addEventListener('click', async () => {
   createStatusBox();
 
   const wait2sec = new Promise(resolve => setTimeout(resolve, 2000));
-  const result = document.getElementById('result');
+  const selected = getSelectedOptions();
+  const excludeSouuchi = document.getElementById('excludeSouuchi').checked;
 
-  const selected = {};
-  Object.keys(selectorState).forEach(name => {
-    const index = selectorState[name];
-    selected[name] = options[name][index].value;
-  });
-
-  const selectedDifficulty = selected.difficulty;
-  const selectedStars = parseInt(selected.stars);
-
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(selected)) {
-    if (value) params.append(key, value);
-  }
+  const params = new URLSearchParams(Object.entries(selected).filter(([_, v]) => v));
+  if (excludeSouuchi) params.append('excludeSouuchi', 'true');
 
   const [res] = await Promise.all([
     fetch(`/api/random-taiko?${params.toString()}`),
     wait2sec
   ]);
+
   const data = await res.json();
+  removeStatusBox();
+  renderSongs(data, selected);
+});
 
-  const box = document.getElementById('status-box');
-  const blocker = document.getElementById('overlay-blocker');
-  if (box) box.remove();
-  if (blocker) blocker.remove();
-
-  result.innerHTML = '';
-  if (Array.isArray(data)) {
-    data.forEach(song => {
-      const genre = genreMap[song.genre] || { color: '#cccccc' };
-      const genreColor = genre.color;
-      const genreLight = lightenColor(genreColor, 0.2);
-      const genreDark = darkenColor(genreColor, 0.2);
-
-      let difficultyUsed = selectedDifficulty;
-      let level = '-';
-
-      if (selectedDifficulty === 'oni-edit') {
-        if (song.difficulties.oni === selectedStars) {
-          difficultyUsed = 'oni';
-          level = song.difficulties.oni;
-        } else if (song.difficulties.edit === selectedStars) {
-          difficultyUsed = 'edit';
-          level = song.difficulties.edit;
-        }
-      } else {
-        level = song.difficulties[selectedDifficulty] ?? '-';
-      }
-
-      const div = document.createElement('div');
-      div.className = 'song-card';
-      div.style.setProperty('--genre-color', genreColor);
-      div.style.setProperty('--genre-color-light', genreLight);
-      div.style.setProperty('--genre-color-dark', genreDark);
-
-      div.innerHTML = `
-        <div class="song-title-text">${escapeXml(song.title)}</div>
-        <div class="song-difficulty-badge" style="background-image: url('/static/assets/img/difficulty-${difficultyUsed}.png');">
-          <span>★${level}</span>
-        </div>
-      `;
-      result.appendChild(div);
-    });
-  } else {
-    result.textContent = data.error || 'エラーが発生しました。';
+function getSelectedOptions() {
+  const selected = {};
+  for (const name in selectorState) {
+    const index = selectorState[name];
+    selected[name] = options[name][index].value;
   }
+  return selected;
+}
+
+function removeStatusBox() {
+  document.getElementById('status-box')?.remove();
+  document.getElementById('overlay-blocker')?.remove();
+}
+
+function renderSongs(data, selected) {
+  const result = document.getElementById('result');
+  result.innerHTML = '';
+
+  if (!Array.isArray(data)) {
+    result.textContent = data.error || 'エラーが発生しました。';
+    return;
+  }
+
+  data.forEach(song => {
+    const { genre, difficulties } = song;
+    const genreInfo = genreMap[genre] || { color: '#ccc' };
+    const color = genreInfo.color;
+
+    const { level, used } = resolveDifficulty(selected.difficulty, selected.stars, difficulties);
+
+    const card = document.createElement('div');
+    card.className = 'song-card';
+    card.style.setProperty('--genre-color', color);
+    card.style.setProperty('--genre-color-light', lightenColor(color, 0.2));
+    card.style.setProperty('--genre-color-dark', darkenColor(color, 0.2));
+
+    card.innerHTML = `
+      <div class="song-title-text">${escapeXml(song.title)}</div>
+      <div class="song-difficulty-badge" style="background-image: url('/static/assets/img/difficulty-${used}.png');">
+        <span>★${level ?? '-'}</span>
+      </div>
+    `;
+
+    result.appendChild(card);
+  });
 
   const firstCard = document.querySelector('.song-card');
-  if (firstCard) {
-    smoothScrollTo(firstCard, 1500);
+  if (firstCard) smoothScrollTo(firstCard, 1500);
+}
+
+function resolveDifficulty(selectedDifficulty, selectedStars, difficulties) {
+  if (selectedDifficulty === 'oni-edit') {
+    const star = parseInt(selectedStars);
+    if (!isNaN(star)) {
+      if (difficulties.oni === star) return { used: 'oni', level: star };
+      if (difficulties.edit === star) return { used: 'edit', level: star };
+    }
+    const available = ['oni', 'edit'].filter(k => difficulties[k] != null);
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    return { used: chosen, level: difficulties[chosen] };
   }
-});
+
+  const level = difficulties[selectedDifficulty] ?? '-';
+  return { used: selectedDifficulty, level };
+}
 
 function lightenColor(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16);
@@ -206,9 +241,7 @@ function smoothScrollTo(element, duration = 1000) {
     const progress = Math.min(elapsed / duration, 1);
     const ease = 1 - Math.pow(1 - progress, 3);
     window.scrollTo(0, startY + diff * ease);
-    if (progress < 1) {
-      requestAnimationFrame(animateScroll);
-    }
+    if (progress < 1) requestAnimationFrame(animateScroll);
   }
 
   requestAnimationFrame(animateScroll);

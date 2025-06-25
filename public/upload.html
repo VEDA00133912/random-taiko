@@ -11,46 +11,54 @@
 </head>
 <body>
   <div class="container">
-  <h1>曲データアップローダー</h1>
+    <h1>曲データアップローダー</h1>
 
-  <h2>JSONファイルをアップロード</h2>
-  <form id="uploadForm">
-    <input type="file" name="jsonFile" accept=".json" required><br>
-    <input type="password" name="adminPass" placeholder="パスワード" required><br>
-    <button type="submit">アップロードして上書き</button>
-  </form>
+    <h2>JSONファイルをアップロード</h2>
+    <form id="uploadForm">
+      <input type="file" name="jsonFile" accept=".json" required><br>
+      <input type="password" name="adminPass" placeholder="パスワード" required><br>
+      <button type="submit">アップロードして上書き</button>
+    </form>
 
-  <h2>曲情報を追加</h2>
-  <form id="addForm">
-    <input type="text" id="title" placeholder="曲名" required><br>
+    <h2>曲情報を追加</h2>
+    <form id="addForm">
+      <input type="text" id="title" placeholder="曲名" required><br>
 
-    <label for="genre">ジャンル：</label>
-    <select id="genre" required>
-      <option value="">選択してください</option>
-      <option value="pops">ポップス</option>
-      <option value="anime">アニメ</option>
-      <option value="vocaloid">ボーカロイド™曲</option>
-      <option value="gamemusic">ゲームミュージック</option>
-      <option value="namco">ナムコオリジナル</option>
-      <option value="classic">クラシック</option>
-      <option value="variety">バラエティ</option>
-      <option value="kids">キッズ</option>
-    </select><br>
+      <label for="genre">ジャンル：</label>
+      <select id="genre" required>
+        <option value="">選択してください</option>
+        <option value="pops">ポップス</option>
+        <option value="anime">アニメ</option>
+        <option value="vocaloid">ボーカロイド™曲</option>
+        <option value="gamemusic">ゲームミュージック</option>
+        <option value="namco">ナムコオリジナル</option>
+        <option value="classic">クラシック</option>
+        <option value="variety">バラエティ</option>
+        <option value="kids">キッズ</option>
+      </select><br>
 
-    <label>各難易度のレベル（省略可）:</label><br>
-    <input type="number" id="easy" placeholder="かんたん"><br>
-    <input type="number" id="normal" placeholder="ふつう"><br>
-    <input type="number" id="hard" placeholder="むずかしい"><br>
-    <input type="number" id="oni" placeholder="おに"><br>
-    <input type="number" id="edit" placeholder="おに裏"><br>
+      <label>各難易度のレベル（省略可）:</label><br>
+      <input type="number" id="easy" placeholder="かんたん"><br>
+      <input type="number" id="normal" placeholder="ふつう"><br>
+      <input type="number" id="hard" placeholder="むずかしい"><br>
+      <input type="number" id="oni" placeholder="おに"><br>
+      <input type="number" id="edit" placeholder="おに裏"><br>
 
-    <input type="password" id="addPass" placeholder="パスワード" required><br>
+      <input type="password" id="addPass" placeholder="パスワード" required><br>
+      <button type="submit">追加</button>
+    </form>
 
-    <button type="submit">追加</button>
-  </form>
+    <h2>曲情報を削除</h2>
+    <form id="deleteForm">
+      <input type="text" id="deleteTitle" placeholder="削除する曲名" required><br>
+      <input type="password" id="deletePass" placeholder="パスワード" required><br>
+      <button type="submit" onclick="return confirm('本当に削除しますか？')">削除</button>
+    </form>
 
+    <div id="loading-indicator" style="display: none;">送信中...</div>
     <div id="result"></div>
-  <script src="/static/js/upload.js"></script>
+
+    <script src="/static/js/upload.js"></script>
   </div>
 </body>
 </html>

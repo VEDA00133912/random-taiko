@@ -1,8 +1,8 @@
 [
-  { "key": "easy", "label": "かんたん" },
-  { "key": "normal", "label": "ふつう" },
-  { "key": "hard", "label": "むずかしい" },
-  { "key": "oni", "label": "おに" },
-  { "key": "edit", "label": "おに(裏)" },
-  { "key": "oni-edit", "label": "おに+おに(裏)"}
+  { "key": "easy", "label": "かんたん", "maxStars": 5 },
+  { "key": "normal", "label": "ふつう", "maxStars": 7 },
+  { "key": "hard", "label": "むずかしい", "maxStars": 8 },
+  { "key": "oni", "label": "おに", "maxStars": 10 },
+  { "key": "edit", "label": "おに(裏)", "maxStars": 10 },
+  { "key": "oni-edit", "label": "おに+おに(裏)", "maxStars": 10 }
 ]
