@@ -131,6 +131,13 @@ h1 {
   margin-bottom: 2rem;
 }
 
+.don-icon {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  margin: 0 0.3em;
+}
+
 label {
   display: block;
   margin-top: 1rem;
@@ -225,7 +232,7 @@ button {
   border-radius: 0.3em;
 }
 
-.souuchi-toggle {
+.option-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -434,8 +441,8 @@ button {
     text-align: center;
     margin-bottom: 0.3rem;
   }
-
-  .souuchi-toggle {
+  
+  .option-toggle {
     flex-direction: row !important;
     gap: 0.5rem;
     justify-content: center;
