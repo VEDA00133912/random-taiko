@@ -372,6 +372,53 @@ button {
   paint-order: stroke;
 }
 
+footer {
+  background-color: #f4f4f4;
+  color: gray;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.footer-content p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.social-icons img {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.3s ease;
+}
+
+.social-icons img:hover {
+  transform: scale(1.1);
+}
+
+.title-site a {
+  color: blue;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.title-site a:hover {
+  text-decoration: underline;
+}
+
 /* スマホ用 */
 @media screen and (max-width: 480px) {
   h1 {
