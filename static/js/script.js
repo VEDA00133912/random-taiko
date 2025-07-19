@@ -42,7 +42,7 @@ Promise.all([
   options.genre = [{ label: '全ジャンル', value: '' }, ...genreList.map(g => ({ label: g.label, value: g.key }))];
   options.difficulty = difficultyList.map(d => ({ label: d.label, value: d.key }));
 
-  updateStarsOptions('oni-edit');
+  updateStarsOptions(options.difficulty[0].value);
   initializeSelectors();
 });
 
@@ -50,11 +50,20 @@ function initializeSelectors() {
   document.querySelectorAll('.selector').forEach(selector => {
     const name = selector.dataset.name;
     const valueElem = selector.querySelector('.value');
+
+    if (!options[name] || options[name].length === 0) {
+      valueElem.textContent = '読み込み中...';
+      return;
+    }
+
     let index = getInitialIndex(name);
 
     const updateDisplay = () => {
+      if (!options[name][index]) index = 0;
+
       valueElem.textContent = options[name][index].label;
       selectorState[name] = index;
+
       if (name === 'difficulty') {
         updateStarsOptions(options.difficulty[index].value);
       }
@@ -77,8 +86,14 @@ function initializeSelectors() {
 }
 
 function updateStarsOptions(difficultyValue) {
-  const difficulty = difficultyMap[difficultyValue];
-  const maxStars = difficulty?.maxStars || 10;
+  let maxStars;
+
+  if (difficultyValue === 'oni-edit') {
+    maxStars = 10;
+  } else {
+    const difficulty = difficultyMap[difficultyValue];
+    maxStars = difficulty?.maxStars ?? 10;
+  }
 
   options.stars = [{ label: 'ランダム', value: '' }].concat(
     Array.from({ length: maxStars }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` }))
@@ -95,7 +110,7 @@ function updateStarsOptions(difficultyValue) {
 }
 
 function getInitialIndex(name) {
-  if (name === 'difficulty') return options.difficulty.findIndex(d => d.value === 'oni-edit');
+  if (name === 'difficulty') return 0;
   if (name === 'stars') return 10;
   return 0;
 }
@@ -144,7 +159,7 @@ function renderSongs(data, selected) {
   result.innerHTML = '';
 
   if (!Array.isArray(data)) {
-    result.textContent = data.error || 'エラーが発生しました。';
+    result.textContent = data.error || 'エラーが発生しました';
     return;
   }
 
@@ -178,13 +193,19 @@ function renderSongs(data, selected) {
 function resolveDifficulty(selectedDifficulty, selectedStars, difficulties) {
   if (selectedDifficulty === 'oni-edit') {
     const star = parseInt(selectedStars);
-    if (!isNaN(star)) {
-      if (difficulties.oni === star) return { used: 'oni', level: star };
-      if (difficulties.edit === star) return { used: 'edit', level: star };
+    const oniMatches = difficulties.oni === star;
+    const editMatches = difficulties.edit === star;
+
+    if (oniMatches && editMatches) {
+      const used = Math.random() < 0.5 ? 'oni' : 'edit';
+      return { used, level: difficulties[used] };
+    } else if (oniMatches) {
+      return { used: 'oni', level: difficulties.oni };
+    } else if (editMatches) {
+      return { used: 'edit', level: difficulties.edit };
+    } else {
+      return { used: 'oni-edit', level: '-' };
     }
-    const available = ['oni', 'edit'].filter(k => difficulties[k] != null);
-    const chosen = available[Math.floor(Math.random() * available.length)];
-    return { used: chosen, level: difficulties[chosen] };
   }
 
   const level = difficulties[selectedDifficulty] ?? '-';

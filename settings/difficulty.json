@@ -4,5 +4,5 @@
   { "key": "hard", "label": "むずかしい", "maxStars": 8 },
   { "key": "oni", "label": "おに", "maxStars": 10 },
   { "key": "edit", "label": "おに(裏)", "maxStars": 10 },
-  { "key": "oni-edit", "label": "おに+おに(裏)", "maxStars": 10 }
+  { "key": "oni-edit", "label": "おに+おに(裏)" }
 ]
