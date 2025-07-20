@@ -192,19 +192,36 @@ function renderSongs(data, selected) {
 
 function resolveDifficulty(selectedDifficulty, selectedStars, difficulties) {
   if (selectedDifficulty === 'oni-edit') {
-    const star = parseInt(selectedStars);
-    const oniMatches = difficulties.oni === star;
-    const editMatches = difficulties.edit === star;
+    const oniStars = difficulties.oni;
+    const editStars = difficulties.edit;
 
-    if (oniMatches && editMatches) {
+    if (!selectedStars) {
+      if (oniStars != null && editStars != null) {
+        const used = Math.random() < 0.5 ? 'oni' : 'edit';
+        return { used, level: difficulties[used] };
+      } else if (oniStars != null) {
+        return { used: 'oni', level: oniStars };
+      } else if (editStars != null) {
+        return { used: 'edit', level: editStars };
+      } else {
+        return { used: '-', level: '-' };
+      }
+    }
+
+    const starNum = parseInt(selectedStars);
+
+    const oniMatch = oniStars === starNum;
+    const editMatch = editStars === starNum;
+
+    if (oniMatch && editMatch) {
       const used = Math.random() < 0.5 ? 'oni' : 'edit';
       return { used, level: difficulties[used] };
-    } else if (oniMatches) {
-      return { used: 'oni', level: difficulties.oni };
-    } else if (editMatches) {
-      return { used: 'edit', level: difficulties.edit };
+    } else if (oniMatch) {
+      return { used: 'oni', level: oniStars };
+    } else if (editMatch) {
+      return { used: 'edit', level: editStars };
     } else {
-      return { used: 'oni-edit', level: '-' };
+      return { used: '-', level: '-' };
     }
   }
 

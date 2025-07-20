@@ -21,10 +21,17 @@ router.get('/', async (req, res, next) => {
       }
 
       if (difficulty === 'oni-edit') {
-        filter.$or = [
-          { 'difficulties.oni': starNum },
-          { 'difficulties.edit': starNum },
-        ];
+        if (starNum !== null) {
+          filter.$or = [
+            { 'difficulties.oni': starNum },
+            { 'difficulties.edit': starNum },
+          ];
+        } else {
+          filter.$or = [
+            { 'difficulties.oni': { $ne: null } },
+            { 'difficulties.edit': { $ne: null } },
+          ];
+        }
       } else {
         filter[`difficulties.${difficulty}`] = starNum ?? { $ne: null };
       }
