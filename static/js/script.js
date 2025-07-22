@@ -110,7 +110,7 @@ function updateStarsOptions(difficultyValue) {
 }
 
 function getInitialIndex(name) {
-  if (name === 'difficulty') return 0;
+  if (name === 'difficulty') return 5;
   if (name === 'stars') return 10;
   return 0;
 }
