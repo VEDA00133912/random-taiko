@@ -1,10 +1,10 @@
 # random-music
-太鼓の達人ランダム選曲サイトです！<br>
-**サイトリンク↓**<br>
-https://random-taiko.onrender.com/<br>
-**twitter↓**<br>
-https://x.com/ryo_001339<br>
-**Discord(サポートサーバー)**
-https://discord.gg/rTdBBaDJ9y<br>
-
+太鼓の達人ランダム選曲サイトです！  
+**サイトリンク↓**  
+https://random-taiko.onrender.com/  
+**twitter↓**  
+https://x.com/ryo_001339  
+**Discord(サポートサーバー)**  
+https://discord.gg/CytkCY2zpf  
+  
 ![alt text](static/assets/img/img.png)
