@@ -1,6 +1,6 @@
 const express = require('express');
-const TaikoSong = require('../settings/TaikoSong');
-const { validateAdminPass } = require('./utils');
+const TaikoSong = require('../../settings/TaikoSong');
+const { validateAdminPass } = require('../utils');
 
 const router = express.Router();
 

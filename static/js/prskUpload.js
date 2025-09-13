@@ -4,7 +4,7 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
   showLoading(true);
 
   try {
-    const res = await fetch('/api/upload', {
+    const res = await fetch('/api/prsk/upload', {
       method: 'POST',
       body: formData
     });
@@ -20,21 +20,20 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
 document.getElementById('addForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const title = getValue('title');
-  const genre = getValue('genre');
+  const name = getValue('name');
   const adminPass = getValue('addPass');
 
-  if (!title || !genre || !adminPass) {
-    return alert("曲名・ジャンル・パスワードを入力してください");
+  if (!name || !adminPass) {
+    return alert("曲名・パスワードを入力してください");
   }
 
-  const difficulties = getDifficultyValues(['easy', 'normal', 'hard', 'oni', 'edit']);
-  const songData = { title, genre, difficulties, adminPass };
+  const difficulties = getDifficultyValues(['easy', 'normal', 'hard', 'expert', 'master', 'append']);
+  const songData = { name, difficulties, adminPass };
 
   showLoading(true);
 
   try {
-    const res = await fetch('/api/add', {
+    const res = await fetch('/api/prsk/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(songData)
@@ -51,19 +50,19 @@ document.getElementById('addForm')?.addEventListener('submit', async (e) => {
 document.getElementById('deleteForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const title = getValue('deleteTitle');
+  const name = getValue('deleteName');
   const adminPass = getValue('deletePass');
 
-  if (!title || !adminPass) {
+  if (!name || !adminPass) {
     return alert("曲名・パスワードを入力してください");
   }
 
-  const deleteData = { title, adminPass };
+  const deleteData = { name, adminPass };
 
   showLoading(true);
 
   try {
-    const res = await fetch('/api/delete', {
+    const res = await fetch('/api/prsk/delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(deleteData)
@@ -108,7 +107,7 @@ function showAddResult(data) {
     resultEl.innerHTML = `
       <div class="result-message">
         <strong>${data.status}</strong><br />
-        ・${data.title}
+        ・${data.name}
       </div>
     `;
   }
@@ -122,7 +121,7 @@ function showDeleteResult(data) {
     resultEl.innerHTML = `
       <div class="result-message">
         <strong>${data.status}</strong><br />
-        ・${data.title}
+        ・${data.name}
       </div>
     `;
   }

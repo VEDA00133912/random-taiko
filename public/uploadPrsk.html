@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>PRSK曲データアップローダー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/static/assets/img/favicon.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/static/assets/img/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="/static/css/upload.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>PRSK曲データアップローダー</h1>
+
+    <h2>JSONファイルをアップロード</h2>
+    <form id="uploadForm">
+      <input type="file" name="jsonFile" accept=".json" required><br>
+      <input type="password" name="adminPass" placeholder="パスワード" required><br>
+      <button type="submit">アップロードして上書き</button>
+    </form>
+
+    <h2>曲情報を追加</h2>
+    <form id="addForm">
+      <input type="text" id="name" placeholder="曲名" required><br>
+
+      <label>各難易度のレベル（省略可）:</label><br>
+      <input type="number" id="easy" placeholder="EASY"><br>
+      <input type="number" id="normal" placeholder="NORMAL"><br>
+      <input type="number" id="hard" placeholder="HARD"><br>
+      <input type="number" id="expert" placeholder="EXPERT"><br>
+      <input type="number" id="master" placeholder="MASTER"><br>
+      <input type="number" id="append" placeholder="APPEND"><br>
+
+      <input type="password" id="addPass" placeholder="パスワード" required><br>
+      <button type="submit">追加</button>
+    </form>
+
+    <h2>曲情報を削除</h2>
+    <form id="deleteForm">
+      <input type="text" id="deleteName" placeholder="削除する曲名" required><br>
+      <input type="password" id="deletePass" placeholder="パスワード" required><br>
+      <button type="submit" onclick="return confirm('本当に削除しますか？')">削除</button>
+    </form>
+
+    <div id="loading-indicator" style="display: none;">送信中...</div>
+    <div id="result"></div>
+
+    <script src="/static/js/prskUpload.js"></script>
+  </div>
+</body>
+</html>

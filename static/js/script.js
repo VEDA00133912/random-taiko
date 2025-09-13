@@ -131,7 +131,7 @@ document.getElementById('submitButton').addEventListener('click', async () => {
   if (excludeSouuchi) params.append('excludeSouuchi', 'true');
 
   const [res] = await Promise.all([
-    fetch(`/api/random-taiko?${params.toString()}`),
+    fetch(`/api/taiko/random-taiko?${params.toString()}`),
     wait2sec
   ]);
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const TaikoSong = require('../settings/TaikoSong');
+const TaikoSong = require('../../settings/TaikoSong');
 
 const router = express.Router();
 

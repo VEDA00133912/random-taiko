@@ -17,10 +17,15 @@ app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/genre-config', express.static('settings'));
 app.use(express.static('public'));
 
-app.use('/api/upload', require('./api/upload'));
-app.use('/api/add', require('./api/add'));
-app.use('/api/delete', require('./api/delete'));
-app.use('/api/random-taiko', require('./api/random-taiko'));
+app.use('/api/taiko/upload', require('./api/taiko/upload'));
+app.use('/api/taiko/add', require('./api/taiko/add'));
+app.use('/api/taiko/delete', require('./api/taiko/delete'));
+app.use('/api/taiko/random-taiko', require('./api/taiko/random-taiko'));
+
+app.use('/api/prsk/upload', require('./api/prsk/upload'));
+app.use('/api/prsk/add', require('./api/prsk/add'));
+app.use('/api/prsk/delete', require('./api/prsk/delete'));
+app.use('/api/prsk/random-prsk', require('./api/prsk/random-prsk'));
 
 app.get('/:page.html', (req, res) => res.redirect(301, `/${req.params.page}`));
 app.get('/:page', (req, res, next) => {
