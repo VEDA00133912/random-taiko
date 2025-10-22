@@ -21,11 +21,18 @@ app.use('/api/taiko/upload', require('./api/taiko/upload'));
 app.use('/api/taiko/add', require('./api/taiko/add'));
 app.use('/api/taiko/delete', require('./api/taiko/delete'));
 app.use('/api/taiko/random-taiko', require('./api/taiko/random-taiko'));
+app.use('/api/taiko/all', require('./api/taiko/all'));
 
 app.use('/api/prsk/upload', require('./api/prsk/upload'));
 app.use('/api/prsk/add', require('./api/prsk/add'));
 app.use('/api/prsk/delete', require('./api/prsk/delete'));
 app.use('/api/prsk/random-prsk', require('./api/prsk/random-prsk'));
+app.use('/api/prsk/all', require('./api/prsk/all'));
+
+app.use('/api/phigros/upload', require('./api/phigros/upload'));
+app.use('/api/phigros/delete', require('./api/phigros/delete'));
+app.use('/api/phigros/random-phigros', require('./api/phigros/random-phigros'));
+app.use('/api/phigros/all', require('./api/phigros/all'));
 
 app.get('/:page.html', (req, res) => res.redirect(301, `/${req.params.page}`));
 app.get('/:page', (req, res, next) => {
